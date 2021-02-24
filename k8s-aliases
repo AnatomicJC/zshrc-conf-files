@@ -1,0 +1,56 @@
+
+k8s-get-api-url () {
+  kubectl cluster-info | grep 'Kubernetes master' | awk '/http/ {print $NF}'
+}
+
+k8s-get-ca () {
+  kubectl get secret $(kubectl get secrets | grep --color=auto default-token | awk '{print $1}') -o jsonpath="{['data']['ca\.crt']}" | base64 --decode
+}
+
+k8s-get-cluster-admin-token () {
+  kubectl -n kube-system get $(kubectl -n kube-system get secret -o=name | grep --color=auto cluster-admin) -o=jsonpath='{..token}' | base64 -d
+}
+
+k8s-get-cluster-developer-token () {
+  kubectl -n default get $(kubectl -n default get secret -o=name | grep --color=auto developer-token) -o=jsonpath='{..token}' | base64 -d
+}
+
+k8s-get-gitlab-admin-token () {
+  kubectl -n kube-system get $(kubectl -n kube-system get secret -o=name | grep --color=auto gitlab-admin-token) -o=jsonpath='{..token}' | base64 -d
+}
+
+update_helm () {
+  wget -q https://get.helm.sh/helm-$(wget -qO- https://github.com/helm/helm/tags | grep --color=auto -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -r | head -n1)-linux-amd64.tar.gz -O - | tar -xzO linux-amd64/helm > ~/.local/bin/helm && chmod +x ~/.local/bin/helm
+}
+
+update_kubectl () {
+  curl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl -o ~/.local/bin/kubectl && chmod +x ~/.local/bin/kubectl
+}
+
+update_kind () {
+  curl -L https://github.com/kubernetes-sigs/kind/releases/download/$(wget -qO- https://github.com/kubernetes-sigs/kind/tags | grep --color=auto -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -r | head -n1)/kind-linux-amd64 -o ~/.local/bin/kind && chmod +x ~/.local/bin/kind
+}
+
+update_kubecolor () {
+  _REPO=dty1er/kubecolor
+  _VERSION=$(wget -qO- https://github.com/${_REPO}/tags | grep --color=auto -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -r | head -n1)
+  wget -q https://github.com/${_REPO}/releases/download/${_VERSION}/kubecolor_${_VERSION/v}_Linux_x86_64.tar.gz -O - | tar -xzO kubecolor > ~/.local/bin/kubecolor && chmod +x ~/.local/bin/kubecolor
+}
+#alias kubectl="kubecolor"
+## autocomplete for kubecolor
+#complete -o default -F __start_kubectl kubecolor
+
+krun () {
+  kubectl run -it --rm --restart=Never --image ${@}
+}
+
+# Load k8s configs
+export KUBECONFIG=${HOME}/.kube/config
+for CFG in $(ls ~/.kube/config-*)
+do 
+  export KUBECONFIG=${KUBECONFIG}:${CFG}
+done
+unset CFG
+
+PROMPT=$PROMPT'$(kube_ps1) '
+kubeoff

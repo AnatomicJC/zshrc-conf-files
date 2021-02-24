@@ -1,0 +1,13 @@
+
+get-docker-image-releases() {
+  wget -q https://registry.hub.docker.com/v1/repositories/${1}/tags -O -  | sed -e 's/[][]//g' -e 's/"//g' -e 's/ //g' | tr '}' '\n'  | awk -F: '{print $3}'
+}
+
+# https://www.docker.com/blog/checking-your-current-docker-pull-rate-limits-and-status/
+get-docker-anonymous-rate-limit() {
+  curl -s --head -H "Authorization: Bearer $(curl -s "https://auth.docker.io/token?service=registry.docker.io&scope=repository:ratelimitpreview/test:pull" | jq -r .token)" https://registry-1.docker.io/v2/ratelimitpreview/test/manifests/latest | grep RateLimit
+}
+
+get-docker-rate-limit() {
+  curl -s --head -H "Authorization: Bearer $(curl -s --user $(grep -A1 index.docker.io ~/.docker/config.json | tail -n1 | awk '{print $2}' | sed 's/"//g' | base64 -d) "https://auth.docker.io/token?service=registry.docker.io&scope=repository:ratelimitpreview/test:pull" | jq -r .token)" https://registry-1.docker.io/v2/ratelimitpreview/test/manifests/latest | grep RateLimit
+}

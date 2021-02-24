@@ -1,0 +1,41 @@
+share-folder() {
+  PORT=${1:-8080}
+  echo "Folder should be accessible on http://$(hostname -I | awk '{print $1}'):${PORT}"
+  podman run --rm -v "${PWD}:/usr/share/nginx/html" -p${PORT}:80 nginx:alpine ash -c "echo 'autoindex on;' > /etc/nginx/conf.d/autoindex.conf && nginx -g 'daemon off;'"
+}
+
+jqz () {
+  jq ".. | .${1}? | select (.!=null)"
+}
+
+jqcontains () {
+  jq "[ .. | objects | with_entries(select(.key | contains(\"${1}\"))) | select(. != {}) ]"
+}
+
+tarball () {
+  if [ -z ${1+x} ]
+  then
+    echo "Parameter is unset"
+    return 1
+  fi
+  tar c "$1" | gzip -1 > "$1_`date +%Y-%m-%d_%H-%M%:::z`.tar.gz"
+}
+
+alias xclip="xclip -sel clip -i"
+alias digshort="dig +noall +answer"
+
+if [ -z "$SSH_AUTH_SOCK" ] ; then eval `ssh-agent -s` ssh-add; fi
+export GOPATH=${HOME}/gopath
+export EDITOR="vim"
+export ANSIBLE_VAULT_PASSWORD_FILE=~/.vault_pass
+export ANSIBLE_DISPLAY_SKIPPED_HOSTS=yes
+export VAGRANT_DEFAULT_PROVIDER=libvirt
+
+# This to have old behavior of ctrl+W
+# https://github.com/ohmyzsh/ohmyzsh/issues/8743
+export WORDCHARS=''
+
+# Appends every command to the history file once it is executed
+setopt inc_append_history
+# Reloads the history whenever you use it
+setopt share_history

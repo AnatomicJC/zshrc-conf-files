@@ -1,0 +1,8 @@
+
+_ansible2.9.16 () {
+  . ~/ansible_venv/ansible2.9.16/bin/activate
+}
+
+_ansible2.10.7 () {
+  . ~/ansible_venv/ansible2.10.7/bin/activate
+}
