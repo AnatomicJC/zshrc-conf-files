@@ -52,5 +52,5 @@ do
 done
 unset CFG
 
-PROMPT=$PROMPT'$(kube_ps1) '
+PROMPT=$PROMPT'$(kube_ps1)'
 kubeoff
