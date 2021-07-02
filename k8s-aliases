@@ -40,17 +40,7 @@ update_kubecolor () {
 ## autocomplete for kubecolor
 #complete -o default -F __start_kubectl kubecolor
 
-krun () {
-  kubectl run -it --rm --restart=Never --image ${@}
+# https://github.com/kubernetes/kubernetes/issues/17512
+k8s-get-allocated-ressources () {
+  kubectl get nodes --no-headers | awk '{print $1}' | xargs -I {} sh -c 'echo {} ; kubectl describe node {} | grep Allocated -A 5 | grep -ve Event -ve Allocated -ve percent -ve -- ; echo '
 }
-
-# Load k8s configs
-export KUBECONFIG=${HOME}/.kube/config
-for CFG in $(ls ~/.kube/config-*)
-do 
-  export KUBECONFIG=${KUBECONFIG}:${CFG}
-done
-unset CFG
-
-PROMPT=$PROMPT'$(kube_ps1)'
-kubeoff
