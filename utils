@@ -1,7 +1,17 @@
 share-folder() {
   PORT=${1:-8080}
   echo "Folder should be accessible on http://$(hostname -I | awk '{print $1}'):${PORT}"
-  podman run --rm -v "${PWD}:/usr/share/nginx/html" -p${PORT}:80 nginx:alpine ash -c "echo 'autoindex on;' > /etc/nginx/conf.d/autoindex.conf && nginx -g 'daemon off;'"
+  docker run --rm -v "${PWD}:/usr/share/nginx/html" -p${PORT}:80 nginx:alpine ash -c "echo 'autoindex on;' > /etc/nginx/conf.d/autoindex.conf && nginx -g 'daemon off;'"
+}
+
+sandboxed-firefox() {
+  WIDTH=1600
+  if [ ! -z "${1}" ]
+  then
+    WIDTH=${1}
+  fi
+  HEIGHT=$(printf "%.0f" $(echo "${WIDTH}*0.75" | bc))
+  docker run -it -e DISPLAY_WIDTH=${WIDTH} -e DISPLAY_HEIGHT=${HEIGHT} --rm -p 5800:5800 --shm-size 2g jlesage/firefox
 }
 
 jqz () {
@@ -21,7 +31,7 @@ tarball () {
   tar czf "$1_`date +%Y-%m-%d_%H-%M%:::z`.tar.gz" "$1"
 }
 
-alias xclip="xclip -sel clip -i"
+#alias xclip="xclip -sel clip -i"
 alias digshort="dig +noall +answer"
 
 if [ -z "$SSH_AUTH_SOCK" ] ; then eval `ssh-agent -s` ssh-add; fi
@@ -29,7 +39,7 @@ export GOPATH=${HOME}/gopath
 export EDITOR="vim"
 export ANSIBLE_VAULT_PASSWORD_FILE=~/.vault_pass
 export ANSIBLE_DISPLAY_SKIPPED_HOSTS=yes
-export VAGRANT_DEFAULT_PROVIDER=libvirt
+#export VAGRANT_DEFAULT_PROVIDER=libvirt
 
 # This to have old behavior of ctrl+W
 # https://github.com/ohmyzsh/ohmyzsh/issues/8743

@@ -1,0 +1,3 @@
+parallels_stop_all_vms () {
+  prlctl list | grep -v NAME | awk '{print $1}' | xargs -IZ prlctl stop Z
+}
