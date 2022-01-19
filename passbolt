@@ -1,11 +1,41 @@
 _build_docker_passbolt_pro () {
   cd ${HOME}/git/passbolt/passbolt_docker
+  git restore .
+  git clean -fdx
+  #git checkout develop
+  git checkout feature/PB-13533-clean-jwt-keys-during-build
+  git pull
   docker build --build-arg PASSBOLT_REPO_URL=https://download.passbolt.com/pro/debian --build-arg PASSBOLT_PKG=passbolt-pro-server . -f debian/Dockerfile --build-arg PASSBOLT_FLAVOUR=pro --build-arg PASSBOLT_COMPONENT=testing -t passbolt/passbolt:latest-pro-testing --no-cache
 }
 
 _build_docker_passbolt_ce () {
   cd ${HOME}/git/passbolt/passbolt_docker
+  git restore .
+  git clean -fdx
+  #git checkout develop
+  git checkout feature/PB-13533-clean-jwt-keys-during-build
+  git pull
   docker build --build-arg PASSBOLT_REPO_URL=https://download.passbolt.com/ce/debian --build-arg PASSBOLT_PKG=passbolt-ce-server . -f debian/Dockerfile --build-arg PASSBOLT_FLAVOUR=ce --build-arg PASSBOLT_COMPONENT=testing -t passbolt/passbolt:latest-ce-testing --no-cache
+}
+
+_build_docker_passbolt_pro_rootless () {
+  cd ${HOME}/git/passbolt/passbolt_docker
+  git restore .
+  git clean -fdx
+  #git checkout develop
+  git checkout feature/PB-13533-clean-jwt-keys-during-build
+  git pull
+  docker build --build-arg PASSBOLT_REPO_URL=https://download.passbolt.com/pro/debian --build-arg PASSBOLT_PKG=passbolt-pro-server . -f debian/Dockerfile.rootless --build-arg PASSBOLT_FLAVOUR=pro --build-arg PASSBOLT_COMPONENT=testing -t passbolt/passbolt:latest-pro-non-root-testing --no-cache
+}
+
+_build_docker_passbolt_ce_rootless () {
+  cd ${HOME}/git/passbolt/passbolt_docker
+  git restore .
+  git clean -fdx
+  #git checkout develop
+  git checkout feature/PB-13533-clean-jwt-keys-during-build
+  git pull
+  docker build --build-arg PASSBOLT_REPO_URL=https://download.passbolt.com/ce/debian --build-arg PASSBOLT_PKG=passbolt-ce-server . -f debian/Dockerfile.rootless --build-arg PASSBOLT_FLAVOUR=ce --build-arg PASSBOLT_COMPONENT=testing -t passbolt/passbolt:latest-ce-non-root-testing --no-cache
 }
 
 _passbolt_create_docker_admin () {
@@ -16,3 +46,20 @@ _passbolt_create_docker_admin () {
                                 -l Passbolt \
                                 -r admin" -s /bin/sh www-data
 }
+
+_passbolt_create_docker_admin_rootless () {
+  docker-compose exec passbolt /usr/share/php/passbolt/bin/cake \
+                                passbolt register_user \
+                                -u admin@domain.tld \
+                                -f Admin \
+                                -l Passbolt \
+                                -r admin
+}
+
+#passbolt () {
+#    if [[ $@ =~ "get resource --id" ]]; then
+#        command passbolt "$@" | grep Password | awk '{ print $2 }' | gpg --batch --armor --user zero-cool@ellingson.corp --encrypt | grep -v gpg
+#    else
+#        command passbolt "$@"
+#    fi
+#}
