@@ -19,16 +19,30 @@ k8s-get-gitlab-admin-token () {
   kubectl -n kube-system get $(kubectl -n kube-system get secret -o=name | grep --color=auto gitlab-admin-token) -o=jsonpath='{..token}' | base64 -d
 }
 
+get_arch () {
+case $(uname -m) in
+    i386)   echo "386" ;;
+    i686)   echo "386" ;;
+    x86_64) echo "amd64" ;;
+    arm) echo "arm" ;;
+    aarch64) echo "arm64" ;;
+esac
+}
+
+get_kernel () {
+  uname | tr '[:upper:]' '[:lower:]'
+}
+
 update_helm () {
-  wget -q https://get.helm.sh/helm-$(wget -qO- https://github.com/helm/helm/tags | grep --color=auto -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -r | head -n1)-linux-amd64.tar.gz -O - | tar -xzO linux-amd64/helm > ~/.local/bin/helm && chmod +x ~/.local/bin/helm
+  wget -q https://get.helm.sh/helm-$(wget -qO- https://github.com/helm/helm/tags | grep --color=auto -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -r | head -n1)-$(get_kernel)-$(get_arch).tar.gz -O - | tar -xzO $(get_kernel)-$(get_arch)/helm > ~/.local/bin/helm && chmod +x ~/.local/bin/helm
 }
 
 update_kubectl () {
-  curl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl -o ~/.local/bin/kubectl && chmod +x ~/.local/bin/kubectl
+  curl -Ls https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/$(get_kernel)/$(get_arch)/kubectl -o ~/.local/bin/kubectl && chmod +x ~/.local/bin/kubectl
 }
 
 update_kind () {
-  curl -L https://github.com/kubernetes-sigs/kind/releases/download/$(wget -qO- https://github.com/kubernetes-sigs/kind/tags | grep --color=auto -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -r | head -n1)/kind-linux-amd64 -o ~/.local/bin/kind && chmod +x ~/.local/bin/kind
+  curl -Ls https://github.com/kubernetes-sigs/kind/releases/download/$(wget -qO- https://github.com/kubernetes-sigs/kind/tags | grep --color=auto -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -r | head -n1)/kind-$(get_kernel)-$(get_arch) -o ~/.local/bin/kind && chmod +x ~/.local/bin/kind
 }
 
 update_kubecolor () {
