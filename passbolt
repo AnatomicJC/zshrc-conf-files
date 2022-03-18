@@ -8,6 +8,15 @@ _build_docker_passbolt_pro () {
   docker build --build-arg PASSBOLT_REPO_URL=https://download.passbolt.com/pro/debian --build-arg PASSBOLT_PKG=passbolt-pro-server . -f debian/Dockerfile --build-arg PASSBOLT_FLAVOUR=pro --build-arg PASSBOLT_COMPONENT=testing -t passbolt/passbolt:latest-pro-testing --no-cache
 }
 
+_build_docker_passbolt_ce_arch () {
+  cd ${HOME}/git/passbolt/passbolt_docker
+  git restore .
+  git clean -fdx
+  git checkout master
+  git pull
+  docker buildx build --build-arg PASSBOLT_REPO_URL=https://download.passbolt.com/ce/debian --build-arg PASSBOLT_PKG=passbolt-ce-server . -f debian/Dockerfile --build-arg PASSBOLT_FLAVOUR=ce --build-arg PASSBOLT_COMPONENT=stable -t anatomicjc/passbolt:3.5.0-ce --no-cache --push --platform linux/amd64,linux/arm/v7,linux/arm64/v8
+}
+
 _build_docker_passbolt_ce () {
   cd ${HOME}/git/passbolt/passbolt_docker
   git restore .
