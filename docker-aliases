@@ -1,6 +1,20 @@
 
 get-docker-image-releases() {
-  wget -q https://registry.hub.docker.com/v1/repositories/${1}/tags -O -  | sed -e 's/[][]//g' -e 's/"//g' -e 's/ //g' | tr '}' '\n'  | awk -F: '{print $3}'
+  IMAGE="${1:-}"
+  case "${IMAGE}" in
+  */*) /bin/true ;;
+    *) IMAGE="library/${IMAGE}" ;;
+  esac
+  curl -L -s "https://registry.hub.docker.com/v2/repositories/${IMAGE}/tags?page_size=100000" | jq '.results[].name'
+}
+
+get-docker-image-archs() {
+  IMAGE="${1:-}"
+  case "${IMAGE}" in
+  */*) : ;;
+    *) IMAGE="library/${IMAGE}" ;;
+  esac
+  curl -L -s "https://registry.hub.docker.com/v2/repositories/${IMAGE}/tags?page_size=1024" | jq '.results[] | { name: .name, architectures: ([ (.images[] | if .variant? then .os + "/" + .architecture + .variant? else .os + "/" + .architecture end) ] | join(", ")) }'
 }
 
 # https://www.docker.com/blog/checking-your-current-docker-pull-rate-limits-and-status/
