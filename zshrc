@@ -95,3 +95,10 @@ done
 export PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/usr/sbin"
 export PATH="$HOME/.local/bin:${PATH}"
 export PATH="${PATH}:/snap/bin"
+export VAGRANT_DEFAULT_PROVIDER=libvirt
+alias xclip="xclip -sel clip -i"
+alias docker-compose="docker compose"
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"
+source "$HOME/.cargo/env"
