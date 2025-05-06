@@ -1,11 +1,12 @@
 
-_ansible2.9.16 () {
-  . ~/ansible_venv/ansible2.9.16/bin/activate
+_ansibleLatest () {
+  . /home/jc/.cache/pypoetry/virtualenvs/ansible-szl-h8J-MFOr-py3.12/bin/activate
   export ANSIBLE_STRATEGY_PLUGINS=$(python3 -c "import sys; print(sys.path.pop())")/ansible_mitogen/plugins/strategy
+  export ANSIBLE_STRATEGY=mitogen_linear
 }
 
-_ansible2.10.7 () {
-  . ~/ansible_venv/ansible2.10.7/bin/activate
-  export ANSIBLE_STRATEGY_PLUGINS=$(python3 -c "import sys; print(sys.path.pop())")/ansible_mitogen/plugins/strategy
+_ansibleKubespray () {
+  . /home/jc/.cache/pypoetry/virtualenvs/ansible-kubespray-doyfnYUF-py3.11/bin/activate
+  #export ANSIBLE_STRATEGY_PLUGINS=$(python -c "import sys; print(sys.path.pop())")/ansible_mitogen/plugins/strategy
+  #export ANSIBLE_STRATEGY=mitogen_linear
 }
-

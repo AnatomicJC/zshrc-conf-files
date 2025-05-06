@@ -45,7 +45,7 @@ ZSH_THEME="fino"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git docker debian dirhistory sudo kubectl kube-ps1 helm zsh-syntax-highlighting)
+plugins=(git docker debian terraform dirhistory sudo kubectl kube-ps1 helm zsh-syntax-highlighting timer nvm fzf timer)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -99,6 +99,12 @@ export VAGRANT_DEFAULT_PROVIDER=libvirt
 alias xclip="xclip -sel clip -i"
 alias docker-compose="docker compose"
 
+TIMER_FORMAT='\n[%d]'; TIMER_PRECISION=2
+
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export PATH="$PATH:$HOME/.rvm/bin"
 source "$HOME/.cargo/env"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

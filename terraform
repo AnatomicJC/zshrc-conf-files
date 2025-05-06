@@ -1,0 +1,13 @@
+function terraform_workspace_info {
+  local terraform_env_file=".terraform/environment"
+  if [[ -f $terraform_env_file ]]; then
+    local workspace_name=$(cat $terraform_env_file)
+    echo "${FG[034]}tf:${workspace_name}%{$reset_color%} "
+  fi
+}
+
+local terraform_info='$(terraform_workspace_info)'
+
+PROMPT="╭─${FG[040]}%n ${FG[239]}at ${FG[033]}$(box_name) ${FG[239]}in %B${FG[226]}%~%b${git_info}${ruby_env}${virtualenv_info}${terraform_info}
+╰─${prompt_char}%{$reset_color%} "
+
