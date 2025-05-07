@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+GPG_TTY=$(tty)
+export GPG_TTY
+
+function zzz() {
+  if [[ ! -f ~/.secrets.yaml.gpg ]]; then
+    echo "Error: '~/.secrets.yaml.gpg' secret file not found."
+    return 1
+  fi
+
+  yaml=$(gpg --quiet --decrypt ~/.secrets.yaml.gpg 2>/dev/null)
+  if [[ $? -ne 0 ]]; then
+    echo "Error: Cannot decrypt '~/.secrets.yaml.gpg'."
+    return 1
+  fi
+
+  vault=$(echo "$yaml" | yq '. | keys | .[]' | sort | fzf)
+  if [[ -z "$vault" ]]; then
+    echo "No selection :-("
+    return 1
+  fi
+
+  env=$(echo "$yaml" | yq ".\"$vault\" | keys | .[]" | sort | fzf)
+  if [[ -z "$env" ]]; then
+    echo "No environment selected."
+    return 1
+  fi
+
+  while IFS="=" read -r key value; do
+    if [[ -n "$key" && -n "$value" ]]; then
+      echo "Exporting ${key}"
+      printf -v escaped_value '%q' "$value"
+      export "$key"="$escaped_value"
+    fi
+  done < <(echo "$yaml" | yq ".\"$vault\".\"$env\" | to_entries | .[] | .key + \"=\" + .value")
+
+  cmd=$(echo "$yaml" | yq ".\"$vault\".\"$env\".cmd // \"\"")
+  if [[ -n "$cmd" ]]; then
+    echo "Executing ${cmd}"
+    eval "$cmd"
+  fi
+}
